@@ -1,13 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import axios from 'axios';
-// Define the API base URL and port as constants
-const API_HOST = 'http://localhost';
-const API_PORT = 1234;
+import { API_BASE_URL } from './config';
 
-// Construct the full API base URL
-const API_BASE_URL = `${API_HOST}:${API_PORT}`;
-
-function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }) {
+function PatientPage({ userID, onLogout, token }) {
   const [doctors, setDoctors] = useState([]);
   const [selectedDoctor, setSelectedDoctor] = useState('');
   const [doctorSlots, setDoctorSlots] = useState([]);
@@ -20,38 +15,6 @@ function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [confirmUpdate, setConfirmUpdate] = useState(false);
 
-  useEffect(() => {
-    // Fetch the list of available doctors when the component mounts
-    fetchDoctorNames();
-  }, []);
-
-  // Helper function to format date and time
-  function formatSlotDateTime(dateString, timeString) {
-    const date = new Date(dateString);
-    const formattedDate = date.toLocaleDateString();
-    const formattedTime = formatSlotTime(timeString);
-    return `${formattedDate} ${formattedTime}`;
-  }
-
-  function formatSlotTime(timeString) {
-    // console.log('Original timeString:', timeString);
-
-    if (!timeString) {
-      return 'Invalid Time';
-    }
-
-    // Assuming timeString is in ISO format, e.g., "2023-12-03T10:30:00Z"
-    const date = new Date(timeString);
-
-    if (isNaN(date.getTime())) {
-      return 'Invalid Time';
-    }
-
-    const formattedTime = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    return formattedTime;
-  }
-
-
   const handleToggleUpdateMode = () => {
     setUpdateMode(!updateMode);
     setSelectedNewSlot(null);
@@ -61,7 +24,7 @@ function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }
   };
 
 
-  const fetchDoctorNames = async () => {
+  const fetchDoctorNames = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/view-all-doctors`, {
         headers: {
@@ -72,7 +35,12 @@ function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }
     } catch (error) {
       console.error('Error fetching doctors:', error);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    // Fetch the list of available doctors when the component mounts
+    fetchDoctorNames();
+  }, [fetchDoctorNames]);
 
   let cancelRequest; // To hold the cancel token
   let latestDoctorSelection = ''; // To keep track of the latest doctor selection
@@ -217,13 +185,9 @@ function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }
       try {
         setLoading(true);
 
-        console.log('Updating appointment...');
-        console.log('Old Slot:', selectedSlot);
-        console.log('New Slot:', selectedNewSlot);
-
-        const responseCreateNewAppointment = await axios.post(`${API_BASE_URL}/choose-slot`, {
-          slotID: selectedNewSlot.slotID,
-        });
+      const responseCreateNewAppointment = await axios.post(`${API_BASE_URL}/choose-slot`, {
+        slotID: selectedNewSlot.slotID,
+      });
 
         if (responseCreateNewAppointment.status === 200) {
           console.log('New appointment created successfully!');
@@ -295,41 +259,11 @@ function PatientPage({ userType, handleSuccessfulAuth, userID, onLogout, token }
     }
   };
 
-
-
-
-
-  const cancelAppointment = async () => {
-    if (selectedSlot) {
-      try {
-        setLoading(true);
-
-        const response = await axios.delete(`${API_BASE_URL}/cancel-appointment/${selectedSlot.scheduleID}`);
-
-        if (response.data.success) {
-          console.log('Appointment canceled successfully!');
-        } else {
-          console.error('Error canceling appointment:', response.data.message);
-          setErrorMessage('Error canceling appointment: ' + response.data.message);
-        }
-      } catch (error) {
-        console.error('Error canceling appointment:', error);
-        setErrorMessage('Error canceling appointment: Something went wrong.');
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
-
   const fetchAllReservations = async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/get-all-reservations/${userID}`);
-      console.log(userID)
       if (response.data.success) {
-
         setReservations(response.data.reservations);
-        // Handle successful reservation retrieval
-        console.log('Reservations:', response.data.reservations);
       }
       else {
         console.error('Error fetching reservations:', response.data.message);

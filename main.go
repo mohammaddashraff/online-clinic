@@ -8,15 +8,15 @@ import (
 	"net/http"
 )
 
-var connectionStr = "user=postgres password=asdyfe2rd dbname=webclinic host=localhost port=5432 sslmode=disable"
-
 func main() {
+	initConfig()
+
 	r := mux.NewRouter()
 	// CORS middleware configuration
 	cors := handlers.CORS(
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),
 		handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}),
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}), // Adjust this to your frontend's origin
+		handlers.AllowedOrigins([]string{allowedOrigin}),
 	)
 	// Use CORS middleware
 	r.Use(cors)
@@ -32,7 +32,6 @@ func main() {
 	r.HandleFunc("/get-all-reservations/{patientID}", getAllReservationsHandler).Methods("GET", "OPTIONS")
 	r.HandleFunc("/update-slot", updateSlotHandler).Methods("PUT", "OPTIONS")
 	// Start the server
-	port := 1234
-	fmt.Printf("Server is running on :%d\n", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), r))
+	fmt.Printf("Server is running on :%s\n", appPort)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", appPort), r))
 }

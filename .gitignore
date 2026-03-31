@@ -1,0 +1,28 @@
+# macOS
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Go
+bin/
+dist/
+*.exe
+*.out
+*.test
+coverage.out
+
+# Node / frontend
+frontend/node_modules/
+frontend/build/
+frontend/coverage/
+
+# IDE/editor
+.idea/
+.vscode/
+*.swp

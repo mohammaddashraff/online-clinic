@@ -4,15 +4,9 @@ import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BiUser, BiEnvelope, BiLock } from 'react-icons/bi';
 import './SignUp.css';
+import { API_BASE_URL } from './config';
 
-// Define the API base URL and port as constants
-const API_HOST = 'http://localhost';
-const API_PORT = 1234;
-
-// Construct the full API base URL
-const API_BASE_URL = `${API_HOST}:${API_PORT}`;
-
-function SignUp({ handleSuccessfulAuth }) {
+function SignUp() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -24,14 +18,13 @@ function SignUp({ handleSuccessfulAuth }) {
     event.preventDefault();
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/signup`, {
+      await axios.post(`${API_BASE_URL}/signup`, {
         name,
         email,
         password,
         userType,
       });
 
-      handleSuccessfulAuth(response.data.userType);
       setErrorMessage(null);
       setSuccessMessage('Sign up successful. Please sign in.'); // Set success message
     } catch (error) {

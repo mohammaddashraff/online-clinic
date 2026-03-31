@@ -5,14 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/dgrijalva/jwt-go"
-	_ "github.com/dgrijalva/jwt-go"
 	_ "github.com/lib/pq"
 	"html"
 	"net/http"
 	"time"
 )
-
-var secretKey = []byte("your-secret-key") // Change this to a strong, unique secret key
 
 // Claims struct to represent the data to be included in the token
 type Claims struct {
@@ -102,7 +99,8 @@ func signInHandler(w http.ResponseWriter, r *http.Request) {
 			"success": false,
 			"message": "Invalid email or password",
 		}
-		http.Error(w, error.Error(err), http.StatusUnauthorized)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(response)
 		return
 	}

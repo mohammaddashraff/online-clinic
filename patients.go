@@ -12,6 +12,7 @@ import (
 )
 
 var DoctorID int
+var ErrSlotUnavailable = errors.New("selected slot is not available")
 
 type Doctor struct {
 	Name string `json:"name"`
@@ -91,7 +92,7 @@ func chooseSlot(slotID int) error {
 	}
 
 	if !slotAvailable {
-		return errors.New("Selected slot is not available")
+		return ErrSlotUnavailable
 	}
 	_, err = conn.Exec(`insert into "patientAppointment" (doctorid, scheduleid, appointmentdate,startTime) SELECT doctorid,scheduleid,slotedate,starttime from "DoctorsSchedule" where "DoctorsSchedule".scheduleid = $1 `, slotID)
 	_, err = conn.Exec(`UPDATE "DoctorsSchedule" SET slotavail = false WHERE scheduleid = $1`, slotID)
@@ -133,7 +134,7 @@ func getDoctorSchedulesHandler(w http.ResponseWriter, r *http.Request) {
 	schedules, err := getAvailSlots()
 	if err != nil || DoctorID == 0 {
 		// Handle the error, e.g., return an internal server error
-		http.Error(w, error.Error(err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -222,8 +223,8 @@ func chooseSlotHandler(w http.ResponseWriter, r *http.Request) {
 	err = chooseSlot(requestBody.SlotID)
 
 	if err != nil {
-		if errors.Is(err, errors.New("Selected slot is not available")) {
-			http.Error(w, "Selected slot is not available", http.StatusConflict)
+		if errors.Is(err, ErrSlotUnavailable) {
+			http.Error(w, ErrSlotUnavailable.Error(), http.StatusConflict)
 		} else {
 			http.Error(w, "Failed to create slot", http.StatusInternalServerError)
 		}
@@ -237,7 +238,7 @@ func chooseSlotHandler(w http.ResponseWriter, r *http.Request) {
 func getAllDoctorNamesHandler(w http.ResponseWriter, r *http.Request) {
 	doctors, err := getAllDoctorNames()
 	if err != nil {
-		http.Error(w, error.Error(err), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

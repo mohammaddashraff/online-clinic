@@ -1,19 +1,11 @@
 // SchedulePage.js
 
 // SchedulePage.js
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SchedulePage.css';
-
-
-
-// Define the API base URL and port as constants
-const API_HOST = 'http://localhost';
-const API_PORT = 1234;
-
-// Construct the full API base URL
-const API_BASE_URL = `${API_HOST}:${API_PORT}`;
+import { API_BASE_URL } from './config';
 function SchedulePage({ userType, onLogout, token }) {
   const [mySlots, setMySlots] = useState([]);
   const [newDate, setNewDate] = useState('');
@@ -30,8 +22,6 @@ function SchedulePage({ userType, onLogout, token }) {
   };
   const handleDateChange = (event) => {
     setNewDate(event.target.value);
-    console.log('New Date:', event.target.value);
-
   };
 
   const handleStartHourChange = (event) => {
@@ -44,9 +34,6 @@ function SchedulePage({ userType, onLogout, token }) {
 
   const handleAddSlot = async () => {
     if (newDate.trim() !== '' && newStartHour.trim() !== '' && newEndHour.trim() !== '') {
-      const s1= newDate;
-      const s2= newStartHour;
-      const s3= newEndHour;
       const slotDate = new Date(`${newDate}T${newStartHour}:00Z`).toISOString();
       const startTime = new Date(`${newDate}T${newStartHour}:00Z`).toISOString();
       const endTime = new Date(`${newDate}T${newEndHour}:00Z`).toISOString();
@@ -58,13 +45,11 @@ function SchedulePage({ userType, onLogout, token }) {
 
       try {
         // Send the new slot to the backend for storage
-        const response = await axios.post(`${API_BASE_URL}/create-slot`, newSlot, {
+        await axios.post(`${API_BASE_URL}/create-slot`, newSlot, {
           headers: {
             Authorization: `Bearer ${token}`, // Include the token in the Authorization header
           },
         });
-        console.log(response.data);
-        console.log(newSlot);
         setMySlots([...mySlots, newSlot]);
         setNewDate('');
         setNewStartHour('');

@@ -1,4 +1,4 @@
-module awesomeProject
+module github.com/mohammadashraf/online-clinic
 
 go 1.21
 

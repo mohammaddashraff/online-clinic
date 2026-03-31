@@ -3,13 +3,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './SignIn.css';
+import { API_BASE_URL } from './config';
 
-// Define the API base URL and port as constants
-const API_HOST = 'http://localhost';
-const API_PORT = 1234;
-
-// Construct the full API base URL
-const API_BASE_URL = `${API_HOST}:${API_PORT}`;
 function SignIn({ handleSuccessfulAuth }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -19,7 +14,6 @@ function SignIn({ handleSuccessfulAuth }) {
     event.preventDefault();
 
     try {
-      // eslint-disable-next-line no-template-curly-in-string
       const response = await axios.post(`${API_BASE_URL}/signin`, { email, password });
 
       const { userType, userID, token } = response.data;

@@ -20,7 +20,6 @@ function App() {
     setUserType(userType);
     setPatientID(userID);
     setToken(token);
-    console.log('Handling successful authentication with userType:', userType);
   };
 
   const handleLogout = () => {
@@ -37,15 +36,15 @@ function App() {
       <div className="App d-flex vh-100 justify-content-center align-items-center">
         <div className="p-3 app-container">
           {userType === 'doctor' ? (
-              <SchedulePage userType={userType} handleSuccessfulAuth={handleSuccessfulAuth} userID={userID} onLogout={handleLogout} />
+              <SchedulePage userType={userType} userID={userID} token={token} onLogout={handleLogout} />
           ) : userType === 'patient' ? (
-              <PatientPage userType={userType} handleSuccessfulAuth={handleSuccessfulAuth} userID={userID} onLogout={handleLogout} />
+              <PatientPage userType={userType} userID={userID} token={token} onLogout={handleLogout} />
           ) : (
               <>
                 {isSignIn ? (
                     <SignIn handleSuccessfulAuth={handleSuccessfulAuth} />
                 ) : (
-                    <SignUp handleSuccessfulAuth={handleSuccessfulAuth} />
+                    <SignUp />
                 )}
                 <div className="d-flex justify-content-center mt-3">
                   <p>

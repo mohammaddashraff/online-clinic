@@ -1,0 +1,8 @@
+FROM postgres:16
+
+# These can be overridden at container runtime.
+ENV POSTGRES_USER=postgres
+ENV POSTGRES_PASSWORD=change-me
+ENV POSTGRES_DB=webclinic
+
+COPY init.sql /docker-entrypoint-initdb.d/
